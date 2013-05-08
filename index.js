@@ -13,11 +13,7 @@ function logic(name, params, options) {
     params = params || {};
     options = options || {};
 
-    if (!logic._list[name]) {
-        logic.error('Logic ' + name + ' not defined');
-    } else {
-        return Object.create(logic._list[name])._create(params, options);
-    }
+    return logic._create(name)._run(params, options);
 }
 
 
@@ -32,7 +28,7 @@ logic.prototype = {
      *
      * @returns pzero
      */
-    _create: function(params, options) {
+    _run: function(params, options) {
         var that = this;
         return this._ensure(params, options)
             .then(function(results) {
@@ -117,6 +113,24 @@ logic._provider = function(name, params, options) {
         if (typeof provider === 'function') {
             return provider;
         }
+    }
+};
+
+/**
+ * Creates logic copy for given name
+ *
+ * @static
+ * @private
+ *
+ * @param {String} name
+ *
+ * @returns logic
+ */
+logic._create = function(name) {
+    if (!logic._list[name]) {
+        logic.error('Logic ' + name + ' not defined');
+    } else {
+        return Object.create(logic._list[name]);
     }
 };
 

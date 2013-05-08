@@ -36,17 +36,17 @@ describe('logic', function() {
 
         it('should not affect original object', function() {
             logic.define('test');
-            logic._list['test']._create = 1;
+            logic._list['test']._ensure = 1;
 
-            expect( logic.prototype._create ).to.be.a( Function );
+            expect( logic.prototype._ensure ).to.be.a( Function );
         });
     });
 
-    describe('constructor', function() {
+    describe('_create', function() {
 
         it('should call error when no definition found', function() {
             sinon.stub(logic, 'error');
-            logic('none');
+            logic._create('none');
 
             expect( logic.error.called ).to.be.ok();
 
@@ -55,13 +55,13 @@ describe('logic', function() {
 
     });
 
-    describe('_create', function() {
+    describe('_run', function() {
 
         it('should return promise', function() {
             logic.define('test', {});
             this.logic = logic._list['test'];
 
-            expect(pzero.is( this.logic._create() )).to.be.ok();
+            expect(pzero.is( this.logic._run() )).to.be.ok();
         });
 
     });
