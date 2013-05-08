@@ -1,0 +1,26 @@
+{
+  "name": "logic",
+  "version": "0.0.0",
+  "description": "Dependencies manager",
+  "main": "index.js",
+  "dependencies": {
+      "pzero": "*"
+  },
+  "devDependencies": {
+      "mocha": "*",
+      "sinon": "*",
+      "expect.js": "*"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha test/spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/artjock/logic.git"
+  },
+  "keywords": [
+    "dependencies",
+    "utility"
+  ],
+  "author": "Artur Burtsev <artjock@gmail.com>"
+}
