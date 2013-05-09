@@ -4,7 +4,7 @@
   "description": "Dependencies manager",
   "main": "index.js",
   "dependencies": {
-      "pzero": "*"
+      "pzero": ">=0.3.2"
   },
   "devDependencies": {
       "mocha": "*",

@@ -75,6 +75,19 @@ describe('logic', function() {
 
     });
 
+    describe('_provider', function() {
+
+        it('should call error, when no provider found', function() {
+            sinon.stub(logic, 'error');
+            logic._provider('none');
+
+            expect(logic.error.calledOnce).to.be.ok();
+
+            logic.error.restore();
+        });
+
+    });
+
     describe('_run', function() {
 
         it('should return promise', function() {
@@ -88,99 +101,64 @@ describe('logic', function() {
 
     describe('_ensure', function() {
 
-        beforeEach(function() {
-            var that = this;
-            logic.define('test', {});
+        var mock_execution_order = {
+            'set0': { deps: [], log: [] },
+            'set1': { deps: ['10'], log: ['log10'] },
+            'set2': { deps: ['20', '10'], log: ['log20', 'log10'] },
+            'set3': { deps: ['20', '10', '15'], log: ['log20', 'log10', 'log15'] },
+            'set4': { deps: ['40', ['30', '20'], '10'], log: ['log40', 'log20', 'log30', 'log10'] }
+        };
 
-            this.logic = logic._list['test'];
+        Object.keys(mock_execution_order).forEach(function(key) {
 
-            this.ctor = function(to) {
-                var promise = pzero();
-                setTimeout(function() { promise.resolve('res' + to); }, to);
-                return promise;
-            };
-            this.provider = function(to) {
-                return !!parseInt(to, 10) && that.ctor;
-            };
-
-            sinon.spy(this, 'ctor');
-            sinon.spy(this, 'provider');
-
-            logic.provider(this.provider);
+            it('should guarantee right execution order for set ' + key, function(done) {
+                var that = this;
+                this.logic.deps = mock_execution_order[key].deps;
+                this.logic._ensure()
+                    .then(function() {
+                        expect( that.log ).to.eql( mock_execution_order[key].log );
+                        done();
+                    });
+            });
         });
 
-        it('should call error when no provider found', function() {
-            sinon.stub(logic, 'error');
-            this.logic.deps = ['no'];
-            this.logic._ensure();
+        var mock_results_order = {
+            'set0': { deps: [], res: [] },
+            'set1': { deps: ['10'], res: ['res10'] },
+            'set2': { deps: ['20', '10'], res: ['res20', 'res10'] },
+            'set3': { deps: ['20', '10', '15'], res: ['res20', 'res10', 'res15'] },
+            'set4': { deps: ['40', ['30', '20'], '10'], res: ['res40', 'res30', 'res20', 'res10'] }
+        };
 
-            expect(logic.error.called).to.be.ok();
+        Object.keys(mock_results_order).forEach(function(key) {
 
-            logic.error.restore();
+            it('should guarantee right results order for set ' + key, function(done) {
+                var that = this;
+                this.logic.deps = mock_results_order[key].deps;
+                this.logic._ensure()
+                    .then(function(results) {
+                        expect( results ).to.eql( mock_results_order[key].res );
+                        done();
+                    });
+            });
         });
+    });
 
-        it('should return promise on no deps', function(done) {
-            this.logic._ensure()
-                .then(function(res) {
-                    expect( res ).to.eql( [] );
-                    done();
-                });
-        });
+    describe('_exec', function() {
 
-        it('should wait for dep', function(done) {
-            this.logic.deps = ['10'];
-
-            this.logic._ensure()
-                .then(function(res) {
-                    expect( res ).to.eql( ['res10'] );
-                    done();
-                });
-        });
-
-        it('should wait for multiple deps', function(done) {
-            this.logic.deps = ['10', '20'];
-
-            this.logic._ensure()
-                .then(function(res) {
-                    expect( res ).to.eql( ['res10', 'res20'] );
-                    done();
-                });
-        });
-
-        it('should call provider getter once', function() {
-            this.logic.deps = ['10'];
-            this.logic._ensure();
+        it('should call provider getter once on each name', function() {
+            this.logic._exec(['10']);
 
             expect(this.provider.calledOnce).to.be.ok();
         });
 
-        it('should call provider ctor only once', function() {
-            this.logic.deps = ['10'];
-            this.logic._ensure();
-
-            expect(this.ctor.calledOnce).to.be.ok();
-        });
-
         it('should pass arguments to provider', function() {
-            var params = {a: 1};
-            var options = {b: 2};
             this.logic.deps = ['10'];
-            this.logic._ensure({a: 1}, {b: 2});
+            this.logic._exec(['10'], {a: 1}, {b: 2});
 
             expect( this.provider.getCall(0).args )
                 .to.eql( ['10', {a: 1}, {b: 2}] );
         });
-
-        it('should pass arguments to ctor', function() {
-            var params = {a: 1};
-            var options = {b: 2};
-            this.logic.deps = ['10'];
-            this.logic._ensure({a: 1}, {b: 2});
-
-            expect( this.ctor.getCall(0).args )
-                .to.eql( ['10', {a: 1}, {b: 2}] );
-        });
-
     });
 
 });

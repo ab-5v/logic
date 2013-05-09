@@ -78,29 +78,76 @@ logic.prototype = {
      * @returns pzero
      */
     _ensure: function(params, options) {
-        var promises = [];
+        var that = this;
+        var execs, orig;
+        var promise = pzero().resolve([]);
 
-        var deps = this.deps || [];
-
-        deps.forEach(function(dep) {
-            var provider = logic._provider(dep, params, options);
-            if (provider) {
-                promises.push( provider(dep, params, options) );
-            } else {
-                logic.error('No provider found for ' + dep);
-            }
+        this.deps.forEach(function(dep) {
+            // ensure array of names
+            if (!Array.isArray(dep)) { dep = [dep]; }
+            // crete executera and add to line
+            promise = promise.then( that._exec(dep, params, options) );
         });
 
-        return pzero.when( promises );
+        return promise;
     },
 
     /**
-     * Should be overwritten
-     * @param {Object} data
+     * Creates event object for logic's event handlers
      *
-     * @return Object
+     * @param {String} name
+     * @param {Object} params
+     * @param {Object} options
+     *
+     * @returns Object
      */
-    ready: function() {}
+    _event: function(name, results, params, options) {
+        return {
+            name: name,
+            params: params,
+            options: options,
+            results: results,
+            preventDefault: function() {
+                this._isPrevented = true;
+            }
+        };
+    },
+
+    /**
+     * Creates executer for each logic
+     * and cares about event handling before execution
+     *
+     * @param {String} name
+     * @param {Object} params
+     * @param {Object} options
+     *
+     * @returns Function
+     */
+    _exec: function(names, params, options) {
+        var that = this;
+        var provs = names.map(function(name) {
+            return logic._provider(name, params, options);
+        });
+
+        return function logic_exec(results) {
+
+            var execs = provs.map(function(prov, i) {
+                var name = names[i];
+                var event = that._event(names, results, params, options);
+
+                var ans = typeof that[name] === 'function' && that[name](event);
+                if (event._isPrevented) { return ans; }
+
+                return prov(name, params, options);
+            });
+
+            return pzero.when(execs).then(function(ans) {
+                results.push.apply(results, ans);
+                return results;
+            });
+        };
+    }
+
 };
 
 /**
