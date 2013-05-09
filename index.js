@@ -132,17 +132,19 @@ logic.prototype = {
         return function logic_exec(results) {
 
             var execs = provs.map(function(prov, i) {
-                var name = names[i];
-                var event = that._event(names, results, params, options);
+                var event, ans, name = names[i];
 
-                var ans = typeof that[name] === 'function' && that[name](event);
-                if (event._isPrevented) { return ans; }
+                if (typeof that[name] === 'function') {
+                    event = that._event(name, results, params, options);
+                    reply = that[name](event);
+                    if (event._isPrevented) { return reply; }
+                }
 
                 return prov(name, params, options);
             });
 
-            return pzero.when(execs).then(function(ans) {
-                results.push.apply(results, ans);
+            return pzero.when(execs).then(function(local) {
+                results.push.apply(results, local);
                 return results;
             });
         };

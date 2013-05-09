@@ -206,6 +206,30 @@ describe('logic', function() {
             expect( this.provider.getCall(0).args )
                 .to.eql( ['10', {a: 1}, {b: 2}] );
         });
+
+        it('should call event if logic has handler', function() {
+            sinon.spy(this.logic, '_event');
+            this.logic['10'] = function() {};
+            this.logic._exec(['10'])();
+
+            expect( this.logic._event.calledOnce ).to.be.ok();
+        });
+
+        it('should pass argumetns to _event call', function() {
+            sinon.spy(this.logic, '_event');
+            this.logic['10'] = function() {};
+            this.logic._exec(['10'], {a: 1}, {b: 2})([1, 2]);
+
+            expect( this.logic._event.getCall(0).args )
+                .to.eql( ['10', [1, 2], {a: 1}, {b: 2}] );
+        });
+
+        it('should not call event if logic hasn\'t handler', function() {
+            sinon.spy(this.logic, '_event');
+            this.logic._exec(['10'])();
+
+            expect( this.logic._event.called ).not.to.be.ok();
+        });
     });
 
 });
