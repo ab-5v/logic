@@ -11,21 +11,41 @@ describe('logic', function() {
 
 
     beforeEach(function() {
+        var that = this;
+
         logic._list = {};
         logic._providers.splice(1);
+
+        logic.define('test', {});
+
+        this.logic = logic._list['test'];
+
+        this.log = [];
+        this.ctor = function(to) {
+            var promise = pzero();
+            setTimeout(function() {
+                that.log.push('log' + to);
+                promise.resolve('res' + to);
+            }, to);
+            return promise;
+        };
+        this.provider = function(to) {
+            return !!parseInt(to, 10) && that.ctor;
+        };
+
+        sinon.spy(this, 'ctor');
+        sinon.spy(this, 'provider');
+
+        logic.provider(this.provider);
     });
 
     describe('define', function() {
 
         it('should save logic to a list', function() {
-            logic.define('test');
-
             expect( logic._list['test'] ).to.be.an(Object);
         });
 
         it('should create logic with prototype', function() {
-            logic.define('test');
-
             expect( Object.getPrototypeOf(logic._list['test']) ).to.eql(logic.prototype);
         });
 
@@ -36,7 +56,6 @@ describe('logic', function() {
         });
 
         it('should not affect original object', function() {
-            logic.define('test');
             logic._list['test']._ensure = 1;
 
             expect( logic.prototype._ensure ).to.be.a( Function );
