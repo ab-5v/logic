@@ -145,6 +145,8 @@ logic._provider = function(name, params, options) {
             return provider;
         }
     }
+
+    return logic.error('No provider found for ' + name);
 };
 
 /**
