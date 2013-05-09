@@ -12,6 +12,7 @@ describe('logic', function() {
 
     beforeEach(function() {
         logic._list = {};
+        logic._providers.splice(1);
     });
 
     describe('define', function() {
@@ -69,17 +70,20 @@ describe('logic', function() {
     describe('_ensure', function() {
 
         beforeEach(function() {
+            var that = this;
             logic.define('test', {});
 
             this.logic = logic._list['test'];
 
-            this.provider = function(to) {
-                return function() {
-                    var promise = pzero();
-                    setTimeout(function() { promise.resolve('res' + to); }, to);
-                    return promise;
-                };
+            this.ctor = function(to) {
+                var promise = pzero();
+                setTimeout(function() { promise.resolve('res' + to); }, to);
+                return promise;
             };
+            this.provider = function(to) { return that.ctor; };
+
+            sinon.spy(this, 'ctor');
+            sinon.spy(this, 'provider');
         });
 
         it('should call error when no provider found', function() {
@@ -121,6 +125,45 @@ describe('logic', function() {
                     done();
                 });
         });
+
+        it('should call provider getter once', function() {
+            logic.provider(this.provider);
+            this.logic.deps = ['10'];
+            this.logic._ensure();
+
+            expect(this.provider.calledOnce).to.be.ok();
+        });
+
+        it('should call provider ctor only once', function() {
+            logic.provider(this.provider);
+            this.logic.deps = ['10'];
+            this.logic._ensure();
+
+            expect(this.ctor.calledOnce).to.be.ok();
+        });
+
+        it('should pass arguments to provider', function() {
+            logic.provider(this.provider);
+            var params = {a: 1};
+            var options = {b: 2};
+            this.logic.deps = ['10'];
+            this.logic._ensure({a: 1}, {b: 2});
+
+            expect( this.provider.getCall(0).args )
+                .to.eql( ['10', {a: 1}, {b: 2}] );
+        });
+
+        it('should pass arguments to ctor', function() {
+            logic.provider(this.provider);
+            var params = {a: 1};
+            var options = {b: 2};
+            this.logic.deps = ['10'];
+            this.logic._ensure({a: 1}, {b: 2});
+
+            expect( this.ctor.getCall(0).args )
+                .to.eql( ['10', {a: 1}, {b: 2}] );
+        });
+
     });
 
 });

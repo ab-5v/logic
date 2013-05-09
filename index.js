@@ -52,9 +52,9 @@ logic.prototype = {
         var deps = this.deps || [];
 
         deps.forEach(function(dep) {
-            var provider = logic._provider(dep);
+            var provider = logic._provider(dep, params, options);
             if (provider) {
-                promises.push( provider(dep, params) );
+                promises.push( provider(dep, params, options) );
             } else {
                 logic.error('No provider found for ' + dep);
             }
