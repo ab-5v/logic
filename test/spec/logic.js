@@ -101,6 +101,32 @@ describe('logic', function() {
 
     describe('_ensure', function() {
 
+        it('should guarantee array to be passed in _exec', function(done) {
+            sinon.spy(this.logic, '_exec');
+            var that = this;
+            this.logic.deps = [10, [20, 30], 40];
+            this.logic._ensure()
+                .then(function() {
+                    expect( that.logic._exec.getCall(0).args[0]).to.eql([10]);
+                    expect( that.logic._exec.getCall(1).args[0]).to.eql([20, 30]);
+                    expect( that.logic._exec.getCall(2).args[0]).to.eql([40]);
+                    done();
+                });
+
+        });
+
+        it('should path arguments to exec', function(done) {
+            sinon.spy(this.logic, '_exec');
+            var that = this;
+            this.logic.deps = [10];
+            this.logic._ensure({a: 1}, {b: 2})
+                .then(function() {
+                    expect( that.logic._exec.getCall(0).args)
+                        .to.eql([[10], {a: 1}, {b: 2}]);
+                    done();
+                });
+        });
+
         var mock_execution_order = {
             'set0': { deps: [], log: [] },
             'set1': { deps: ['10'], log: ['log10'] },
@@ -142,6 +168,27 @@ describe('logic', function() {
                     });
             });
         });
+    });
+
+    describe('_event', function() {
+
+        it('should create event', function() {
+            var evt = this.logic._event('name', [1, 2], {a: 1}, {b: 2});
+
+            expect( evt.name ).to.eql('name');
+            expect( evt.params ).to.eql( {a: 1} );
+            expect( evt.options ).to.eql( {b: 2} );
+            expect( evt.results ).to.eql( [1, 2] );
+            expect( evt.preventDefault ).to.be.a( Function );
+        });
+
+        it('should set flag on default prevention', function() {
+            var evt = this.logic._event();
+            evt.preventDefault();
+
+            expect( evt._isPrevented ).to.eql( true );
+        });
+
     });
 
     describe('_exec', function() {
