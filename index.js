@@ -20,6 +20,37 @@ function logic(name, params, options) {
 logic.prototype = {
 
     /**
+     * Dependencies to be loaded,
+     * before logic can provide it's data
+     *
+     * @example
+     *  ['l-1', 'l-2', 'l-3']
+     *      – will load `l-1`, then `l-2`, then `l-3`
+     *  ['l-1', ['l-2', 'l-3'], 'l-4']
+     *      – will load 'l-1', then 'l-2' and 'l-3' at once, then 'l-4'
+     *
+     * @type Array
+     */
+    deps: [],
+
+    /**
+     * Callback to be called,
+     * when all dependencies are loaded
+     * to finalize data provided by logic.
+     *
+     * Should be overwritten.
+     *
+     * @param {Array} results
+     * @param {Object} params
+     * @param {Object} options
+     *
+     * @returns Array
+     */
+    ready: function(results, params, options) {
+        return results;
+    },
+
+    /**
      * Creates logic instance and calls ready, when all deps are resolved
      *
      * @private
