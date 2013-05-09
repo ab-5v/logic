@@ -80,15 +80,19 @@ describe('logic', function() {
                 setTimeout(function() { promise.resolve('res' + to); }, to);
                 return promise;
             };
-            this.provider = function(to) { return that.ctor; };
+            this.provider = function(to) {
+                return !!parseInt(to, 10) && that.ctor;
+            };
 
             sinon.spy(this, 'ctor');
             sinon.spy(this, 'provider');
+
+            logic.provider(this.provider);
         });
 
         it('should call error when no provider found', function() {
             sinon.stub(logic, 'error');
-            this.logic.deps = ['123'];
+            this.logic.deps = ['no'];
             this.logic._ensure();
 
             expect(logic.error.called).to.be.ok();
@@ -105,7 +109,6 @@ describe('logic', function() {
         });
 
         it('should wait for dep', function(done) {
-            logic.provider(this.provider);
             this.logic.deps = ['10'];
 
             this.logic._ensure()
@@ -116,7 +119,6 @@ describe('logic', function() {
         });
 
         it('should wait for multiple deps', function(done) {
-            logic.provider(this.provider);
             this.logic.deps = ['10', '20'];
 
             this.logic._ensure()
@@ -127,7 +129,6 @@ describe('logic', function() {
         });
 
         it('should call provider getter once', function() {
-            logic.provider(this.provider);
             this.logic.deps = ['10'];
             this.logic._ensure();
 
@@ -135,7 +136,6 @@ describe('logic', function() {
         });
 
         it('should call provider ctor only once', function() {
-            logic.provider(this.provider);
             this.logic.deps = ['10'];
             this.logic._ensure();
 
@@ -143,7 +143,6 @@ describe('logic', function() {
         });
 
         it('should pass arguments to provider', function() {
-            logic.provider(this.provider);
             var params = {a: 1};
             var options = {b: 2};
             this.logic.deps = ['10'];
@@ -154,7 +153,6 @@ describe('logic', function() {
         });
 
         it('should pass arguments to ctor', function() {
-            logic.provider(this.provider);
             var params = {a: 1};
             var options = {b: 2};
             this.logic.deps = ['10'];
