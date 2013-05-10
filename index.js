@@ -137,7 +137,13 @@ logic.prototype = {
                 if (typeof that[name] === 'function') {
                     event = that._event(name, results, params, options);
                     reply = that[name](event);
-                    if (event._isPrevented) { return pzero().resolve(reply); }
+                    if (event._isPrevented) {
+                        return pzero().resolve(reply);
+                    } else {
+                        params = event.params;
+                        options = event.options;
+                        results = event.results;
+                    }
                 }
 
                 return prov(name, params, options);

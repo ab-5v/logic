@@ -33,10 +33,24 @@ describe('logic', function() {
             return !!parseInt(to, 10) && that.ctor;
         };
 
+        this.paramProvider = function(name) {
+            if (name.indexOf('param') === 0) {
+                return function(name, params) {
+                    var promise = pzero();
+                    var result = params.res;
+                    setTimeout(function() {
+                        promise.resolve(result);
+                    }, params.to);
+                    return promise;
+                };
+            }
+        };
+
         sinon.spy(this, 'ctor');
         sinon.spy(this, 'provider');
 
         logic.provider(this.provider);
+        logic.provider(this.paramProvider);
     });
 
     describe('define', function() {
@@ -280,6 +294,24 @@ describe('logic', function() {
             this.logic._exec(['10', '20'])([])
                 .then(function(results) {
                     expect( results ).to.eql( [undefined, 'prev20'] );
+                    done();
+                });
+        });
+
+        it('should be able to update params for next logic', function(done) {
+            this.logic['param1'] = function(evt) { evt.params.res = 'b'; };
+            this.logic._exec(['param0', 'param1', 'param2'], {to: 10, res: 'a'})([])
+                .then(function(results) {
+                    expect( results ).to.eql( ['a', 'b', 'b'] );
+                    done();
+                });
+        });
+
+        it('should overwrite params for whole group of logics', function(done) {
+            this.logic['param1'] = function(evt) { evt.params = {to: 20, res: 'b'}; };
+            this.logic._exec(['param1', 'param2'], {to: 10, res: 'a'})([])
+                .then(function(results) {
+                    expect( results ).to.eql( ['b', 'b'] );
                     done();
                 });
         });
