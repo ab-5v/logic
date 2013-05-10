@@ -18,7 +18,7 @@ describe('logic', function() {
 
         logic.define('test', {});
 
-        this.logic = logic._list['test'];
+        this.logic = logic._create('test');
 
         this.log = [];
         this.ctor = function(to) {
@@ -207,29 +207,83 @@ describe('logic', function() {
                 .to.eql( ['10', {a: 1}, {b: 2}] );
         });
 
-        it('should call event if logic has handler', function() {
+        it('should call event if logic has handler', function(done) {
+            var that = this;
             sinon.spy(this.logic, '_event');
             this.logic['10'] = function() {};
-            this.logic._exec(['10'])();
-
-            expect( this.logic._event.calledOnce ).to.be.ok();
+            this.logic._exec(['10'])([])
+                .then(function() {
+                    expect( that.logic._event.calledOnce ).to.be.ok();
+                    done();
+                });
         });
 
-        it('should pass argumetns to _event call', function() {
+        it('should pass argumetns to _event call', function(done) {
+            var that = this;
             sinon.spy(this.logic, '_event');
             this.logic['10'] = function() {};
-            this.logic._exec(['10'], {a: 1}, {b: 2})([1, 2]);
+            this.logic._exec(['10'], {a: 1}, {b: 2})([1, 2]).then(function() { done(); });
 
-            expect( this.logic._event.getCall(0).args )
+            expect( that.logic._event.getCall(0).args )
                 .to.eql( ['10', [1, 2], {a: 1}, {b: 2}] );
+
         });
 
-        it('should not call event if logic hasn\'t handler', function() {
+        it('should not call event if logic hasn\'t corresponding handler', function(done) {
+            var that = this;
             sinon.spy(this.logic, '_event');
-            this.logic._exec(['10'])();
-
-            expect( this.logic._event.called ).not.to.be.ok();
+            this.logic['20'] = function() {};
+            this.logic._exec(['10'])([])
+                .then(function() {
+                    expect( that.logic._event.called ).not.to.be.ok();
+                    done();
+                });
         });
+
+        it('should call event handler', function(done) {
+            var that = this;
+            this.logic['10'] = sinon.spy();
+            this.logic._exec(['10'])([])
+                .then(function() {
+                    expect( that.logic['10'].calledOnce ).to.be.ok();
+                    done();
+                });
+        });
+
+        it('should pass event to event handler', function(done) {
+            var that = this;
+            sinon.spy(this.logic, '_event');
+            this.logic['10'] = sinon.spy();
+            this.logic._exec(['10'], {a: 1}, {b: 2})([1, 2])
+                .then(function() {
+                    expect( that.logic['10'].getCall(0).args[0] )
+                        .to.eql( that.logic._event.returnValues[0] );
+                    done();
+                });
+
+        });
+
+        it('should prevent provider from event', function(done) {
+            var that = this;
+            this.logic['10'] = function(evt) { evt.preventDefault(); };
+            this.logic._exec(['10'], {a: 1}, {b: 2})([1, 2])
+                .then(function() {
+                    expect( that.ctor.called ).not.to.be.ok();
+                    done();
+                });
+
+        });
+
+        it('should resolve logic with value returned by prevented handler', function(done) {
+            this.logic['10'] = function(evt) { evt.preventDefault(); };
+            this.logic['20'] = function(evt) { evt.preventDefault(); return 'prev20'; };
+            this.logic._exec(['10', '20'])([])
+                .then(function(results) {
+                    expect( results ).to.eql( [undefined, 'prev20'] );
+                    done();
+                });
+        });
+
     });
 
 });
