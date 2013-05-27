@@ -132,7 +132,7 @@ logic.prototype = {
         return function logic_exec(results) {
 
             var execs = provs.map(function(prov, i) {
-                var event, ans, name = names[i];
+                var event, reply, name = names[i];
 
                 if (typeof that[name] === 'function') {
                     event = that._event(name, results, params, options);
