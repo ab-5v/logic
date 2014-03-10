@@ -20,9 +20,9 @@ Clone repository, then
     
 ### Overview
 
-Logic helps you to define relationships between different data sorces and combine it to the one solid responce. It knows nothing about how this data sorces work.
+Logic helps you to define relationships between different data sources and combine it into the one solid responce. It knows nothing about how this data sources work.
 
-There are two types of logic:
+There are two types of logics:
 - provider based logic, which leads to some data
 - abstract logic, which is used to organise other logics (abstract or provider based)
 
