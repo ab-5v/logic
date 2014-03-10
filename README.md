@@ -11,6 +11,12 @@ then
 
     var logic = require('logic');
     
+### Test
+
+Clone repository, then
+
+    npm install
+    npm test
     
 ### Overview
 
