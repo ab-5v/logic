@@ -11,7 +11,8 @@ then
 
     var logic = require('logic');
     
-## Logic declaration
+    
+### Logic declaration
 
 ```js
 logic.define('logic-name', {
@@ -37,10 +38,15 @@ logic.define('logic-name', {
    * @param {Object} evt
    */
   'logic-name-1': function(evt) {
-    evt.results;  // array of already requested logics
+    evt.name;     // 'logic-name-1'
     evt.params;   // params this logic will be requested with,
                   // inherited from the root logic `logic-name`
                   // can be overwritten, then will go with it's own params
+    evt.options;  // logic options
+    evt.results;  // array of already requested logics
+    evt.preventDefault();   // if called logic will be fullfiled
+                            // with returned value immediately
+    return { status: 'prevented' };
   },
   
   /**
@@ -54,5 +60,17 @@ logic.define('logic-name', {
     params;  // params root logic was called with
   }
 
+});
+```
+
+### Logic provider
+
+Registers a callback to fullfil specified logic
+
+```js
+logic.provider(function(name) {
+    return function(name, params) {
+        return name + JSON.stringify(params);
+    }
 });
 ```
