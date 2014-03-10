@@ -3,7 +3,7 @@ logic [![build status](https://secure.travis-ci.org/artjock/logic.png)](http://t
 
 Data aggregation framework.
 
-## Usage
+### Usage
 
     npm install logic
     
