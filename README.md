@@ -53,11 +53,18 @@ logic.define('logic-name', {
    * Callback to be called when all logic are fullfiled
    * @param {Array} results
    * @param {Object} params
+   * @param {Object} options
    */
-  ready: function(results, params) {
+  ready: function(results, params, options) {
     results; // array of results
              // in the order you declare it in `deps`
     params;  // params root logic was called with
+    
+    return {
+        'logic-name-1': results[0],
+        'logic-name-2': results[1],
+        'logic-name-3': results[2]
+    };
   }
 
 });
@@ -73,4 +80,10 @@ logic.provider(function(name) {
         return name + JSON.stringify(params);
     }
 });
+```
+
+### Logic execution
+```js
+logic('logic-name', params, options)
+    .then(function(result) {});
 ```
