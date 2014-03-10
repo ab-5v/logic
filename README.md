@@ -12,7 +12,16 @@ then
     var logic = require('logic');
     
     
-### Logic declaration
+### Overview
+
+Logic helps you to define relationships between different data sorces and combine it to the one solid responce. It knows nothing about how this data sorces work.
+
+There are two types of logic:
+- provider based logic, which leads to some data
+- abstract logic, which is used to organise other logics (abstract or provider based)
+
+
+### Abstract logic declaration
 
 ```js
 logic.define('logic-name', {
@@ -21,6 +30,9 @@ logic.define('logic-name', {
    * `logic-name` depends on this three,
    * where 1 level of array will be ran in series
    * and 2 level of array will be ran in parallel
+   *
+   * If any of this logics will be failed
+   * the root one also will be failed
    */
   deps: ['logic-name-1', ['logic-name-2', 'logic-name-3']],
   
@@ -72,12 +84,14 @@ logic.define('logic-name', {
 
 ### Logic provider
 
-Registers a callback to fullfil specified logic
+Provider must decide if it will process logic with a given name, params and options or not. If so it should return function, or anything else otherwice (undefined or null is better). You can add as many providers, as you want, but only first match will be executed. `logic` know nothing about how provider works, it can be HTTP request, DB query, memory cache, etc. The only rule: provider function *should return A+ promise*.
 
 ```js
-logic.provider(function(name) {
-    return function(name, params) {
-        return name + JSON.stringify(params);
+logic.provider(function(name, params, options) {
+    if (name === 'accepted-logic') {
+        return function(name, params, options) {
+            return promise( name + JSON.stringify(params) );
+        }
     }
 });
 ```
