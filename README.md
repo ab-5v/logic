@@ -84,7 +84,7 @@ logic.define('logic-name', {
 
 ### Logic provider
 
-Provider must decide if it will process logic with a given name, params and options or not. If so it should return function, or anything else otherwice (undefined or null is better). You can add as many providers, as you want, but only first match will be executed. `logic` know nothing about how provider works, it can be HTTP request, DB query, memory cache, etc. The only rule: provider function *should return A+ promise*.
+Provider must decide if it will process logic with a given name, params and options or not. If so it should return function, or anything else otherwice (undefined or null is better). You can add as many providers, as you want, but only first match will be executed. `logic` knows nothing about how provider works, it can be HTTP request, DB query, memory cache, etc. The only rule: provider function **should return A+ promise**.
 
 ```js
 logic.provider(function(name, params, options) {
