@@ -97,6 +97,9 @@ logic.provider(function(name, params, options) {
 ```
 
 ### Logic execution
+
+Now in your API you can use just a single call, and `logic` will take care about all the dependencies.
+
 ```js
 logic('logic-name', params, options)
     .then(function(result) {});
