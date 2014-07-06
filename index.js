@@ -51,7 +51,7 @@ logic.prototype = {
     },
 
     /**
-     * Creates logic instance and calls ready, when all deps are resolved
+     * Creates logic instance and calls ready, when all deps are fulfilled
      *
      * @private
      * @param {Object} params
@@ -80,7 +80,7 @@ logic.prototype = {
     _ensure: function(params, options) {
         var that = this;
         var execs, orig;
-        var promise = pzero().resolve([]);
+        var promise = pzero([]);
 
         this.deps.forEach(function(dep) {
             // ensure array of names
@@ -138,7 +138,7 @@ logic.prototype = {
                     event = that._event(name, results, params, options);
                     reply = that[name](event);
                     if (event._isPrevented) {
-                        return pzero().resolve(reply);
+                        return pzero(reply);
                     } else {
                         params = event.params;
                         options = event.options;

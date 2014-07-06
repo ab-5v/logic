@@ -25,7 +25,7 @@ describe('logic', function() {
             var promise = pzero();
             setTimeout(function() {
                 that.log.push('log' + to);
-                promise.resolve('res' + to);
+                promise.fulfill('res' + to);
             }, to);
             return promise;
         };
@@ -39,7 +39,7 @@ describe('logic', function() {
                     var promise = pzero();
                     var result = params.res;
                     setTimeout(function() {
-                        promise.resolve(result);
+                        promise.fulfill(result);
                     }, params.to);
                     return promise;
                 };
@@ -288,7 +288,7 @@ describe('logic', function() {
 
         });
 
-        it('should resolve logic with value returned by prevented handler', function(done) {
+        it('should fulfill logic with value returned by prevented handler', function(done) {
             this.logic['10'] = function(evt) { evt.preventDefault(); };
             this.logic['20'] = function(evt) { evt.preventDefault(); return 'prev20'; };
             this.logic._exec(['10', '20'])([])
