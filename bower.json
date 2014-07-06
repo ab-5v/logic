@@ -1,7 +1,7 @@
 {
   "name": "logic",
   "main": "index.js",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "homepage": "https://github.com/artjock/logic",
   "authors": [
     "Artur Burtsev <artjock@gmail.com>"
