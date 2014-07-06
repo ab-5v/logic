@@ -1,7 +1,7 @@
 {
   "name": "logic",
   "main": "index.js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/artjock/logic",
   "authors": [
     "Artur Burtsev <artjock@gmail.com>"
@@ -24,7 +24,7 @@
     "tests"
   ],
   "dependencies": {
-    "pzero": "~0.4.5",
-    "p0": "~0.1.1"
+    "pzero": "~0.4.6",
+    "p0": "~0.1.2"
   }
 }
