@@ -1,10 +1,10 @@
 {
   "name": "logic",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Dependencies manager",
   "main": "index.js",
   "dependencies": {
-      "pzero": "0.4.6"
+      "pzero": "0.4.5"
   },
   "devDependencies": {
       "mocha": "*",
