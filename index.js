@@ -1,4 +1,6 @@
-var pzero = require('pzero');
+!function(root) {
+
+var pzero = root.pzero || require('pzero');
 
 /**
  * Logic constructor and getter
@@ -269,4 +271,10 @@ logic.error = function(msg) {
     throw new Error(msg);
 };
 
-module.exports = logic;
+if (typeof module != 'undefined' && module.exports) {
+    module.exports = logic;
+} else {
+    root.logic = logic;
+}
+
+}(this);
